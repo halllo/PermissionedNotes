@@ -1,0 +1,9 @@
+﻿{
+	"$schema": "http://json.schemastore.org/launchsettings.json",
+	"profiles": {
+		"PermissionedNotes.Init": {
+			"commandName": "Project",
+			"commandLineArgs": "ENVIRONMENT=Development"
+		}
+	}
+}
