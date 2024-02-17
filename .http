@@ -1,0 +1,75 @@
+# @name loginBob
+POST https://localhost:5001/connect/token
+Content-Type: application/x-www-form-urlencoded
+
+&grant_type=password
+&client_id=permissionednotes.web
+&client_secret=secret
+&username=bob
+&password=bob
+&scope=openid profile notes admin
+
+###
+
+# @name loginAlice
+POST https://localhost:5001/connect/token
+Content-Type: application/x-www-form-urlencoded
+
+&grant_type=password
+&client_id=permissionednotes.web
+&client_secret=secret
+&username=alice
+&password=alice
+&scope=openid profile notes admin
+
+###
+
+@accesstoken = {{loginBob.response.body.access_token}}
+
+###
+
+# @name collections
+GET https://localhost:7262/collections
+Authorization: Bearer {{accesstoken}}
+
+###
+
+# @name notes
+GET https://localhost:7262/notes
+Authorization: Bearer {{accesstoken}}
+
+###
+
+GET https://localhost:7262/collections/{{collections.response.body.collections[0].id}}
+Authorization: Bearer {{accesstoken}}
+
+###
+
+GET https://localhost:7262/collections/{{collections.response.body.collections[0].id}}/notes
+Authorization: Bearer {{accesstoken}}
+
+###
+
+# @name newnote
+POST https://localhost:7262/collections/{{collections.response.body.collections[0].id}}/notes
+Authorization: Bearer {{accesstoken}}
+content-type: application/json
+
+{
+  "text": "my cool note"
+}
+
+###
+
+GET https://localhost:7262/notes/{{newnote.response.body.$}}
+Authorization: Bearer {{accesstoken}}
+content-type: application/json
+
+
+###
+
+DELETE https://localhost:7262/notes/{{newnote.response.body.$}}
+Authorization: Bearer {{accesstoken}}
+content-type: application/json
+
+

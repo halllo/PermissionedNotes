@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Google.Protobuf" Version="3.25.3" />
+		<PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.60.0" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.60.0" />
+		<PackageReference Include="Grpc.Tools" Version="2.61.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="Protos\authzed\api\v1\experimental_service.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\google\api\annotations.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\google\api\http.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\google\rpc\status.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\protoc-gen-openapiv2\options\annotations.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\protoc-gen-openapiv2\options\openapiv2.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\validate\validate.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\core.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\debug.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\error_reason.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\openapi.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\permission_service.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\schema_service.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+		<Protobuf Include="Protos\authzed\api\v1\watch_service.proto" GrpcServices="Client" ProtoRoot="Protos\" Access="Internal" />
+	</ItemGroup>
+
+</Project>
