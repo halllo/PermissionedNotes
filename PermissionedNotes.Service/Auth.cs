@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -54,12 +54,12 @@ namespace PermissionedNotes.Service
 					};
 					o.Events.OnTicketReceived = async ctx =>
 					{
+						//Get scope claims from access token
 						var accesstoken = ctx.Properties?.GetTokenValue("access_token");
-
-						var handler = new JwtSecurityTokenHandler();
-						var token = handler.ReadJwtToken(accesstoken);
+						var token = new JwtSecurityTokenHandler().ReadJwtToken(accesstoken);
 						var scopeClaims = token.Claims.Where(c => c.Type == "scope").Select(c => c.Value);
 
+						//Remember scope claims for policy checking
 						var cp = new ClaimsIdentity(ExternalLoginScheme);
 						cp.AddClaims(scopeClaims.Select(s => new Claim("scope", s)));
 						ctx.Principal!.AddIdentity(cp);
@@ -76,13 +76,13 @@ namespace PermissionedNotes.Service
 				{
 					policy.AuthenticationSchemes = new[] { LoginCookie };
 					policy.RequireAuthenticatedUser();
-					//todo: scope checking
+					policy.RequireAssertion(ctx => ctx.User.HasClaim("scope", "notes"));
 				});
 				options.AddPolicy("admin", policy =>
 				{
 					policy.AuthenticationSchemes = new[] { LoginCookie };
 					policy.RequireAuthenticatedUser();
-					//todo: scope checking
+					policy.RequireAssertion(ctx => ctx.User.HasClaim("scope", "admin"));
 				});
 			});
 		}
