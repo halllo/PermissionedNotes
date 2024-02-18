@@ -7,8 +7,24 @@ definition team {
 definition user {
 }
 
-definition folder {	
+definition collection {	
+	relation owner: user
+	relation writer: user
+	relation reader: user
+
+    permission read = owner + writer + reader
+	permission update = owner + writer
+	permission delete = owner
+	permission create_note = owner + writer
 }
 
 definition note {
+	relation owner: user
+	relation writer: user
+	relation reader: user
+	relation parent: collection
+
+	permission read = owner + writer + reader + parent->read
+	permission update = owner + writer + parent->update
+	permission delete = owner + parent->delete
 }

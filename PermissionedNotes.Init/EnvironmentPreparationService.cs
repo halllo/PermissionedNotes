@@ -79,7 +79,7 @@ namespace PermissionedNotes.Init
 				}
 				{//Apply DB migrations
 					this.logger.LogInformation("Migrating DB...");
-					var context = serviceScope.ServiceProvider.GetRequiredService<NotesDbContext>();
+					var context = serviceScope.ServiceProvider.GetRequiredService<DB>();
 					await context.Database.MigrateAsync(cancellationToken);
 				}
 			}

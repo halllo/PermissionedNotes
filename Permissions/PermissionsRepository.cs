@@ -7,19 +7,19 @@ namespace Permissions
 {
 	public interface IPermissionsRepository
 	{
-		Task<bool> IsAllowed(string subjectType, string subjectId, string permission, string objectType, string objectId, string? writtenAtToken = default, CancellationToken cancellationToken = default);
-		Task<IReadOnlySet<string>> IsAllowedBulkExperimental(IEnumerable<(string subjectType, string subjectId, string permission, string objectType, string objectId)> items, string? writtenAtToken = default, CancellationToken cancellationToken = default);
-		IAsyncEnumerable<string> LookupResources(string subjectType, string subjectId, string permission, string objectType, string? writtenAtToken = default, CancellationToken cancellationToken = default);
-		Task<IReadOnlyCollection<IRelation>> GetRelations(string objectType, string objectId, string relationType = "", string? writtenAtToken = default, CancellationToken cancellationToken = default);
-		Task<string> UpdateRelations(string objectType, string objectId, Update dto, CancellationToken cancellationToken);
-		Task Remove(string objectType, string objectId, CancellationToken cancellationToken);
+		Task<bool> IsAllowed(string subjectType, Guid subjectId, string permission, string objectType, Guid objectId, string? writtenAtToken = default, CancellationToken cancellationToken = default);
+		Task<IReadOnlySet<Guid>> IsAllowedBulkExperimental(IEnumerable<(string subjectType, Guid subjectId, string permission, string objectType, Guid objectId)> items, string? writtenAtToken = default, CancellationToken cancellationToken = default);
+		IAsyncEnumerable<Guid> LookupResources(string subjectType, Guid subjectId, string permission, string objectType, string? writtenAtToken = default, CancellationToken cancellationToken = default);
+		Task<IReadOnlyCollection<IRelation>> GetRelations(string objectType, Guid objectId, string relationType = "", string? writtenAtToken = default, CancellationToken cancellationToken = default);
+		Task<string> UpdateRelations(string objectType, Guid objectId, Update dto, CancellationToken cancellationToken);
+		Task Remove(string objectType, Guid objectId, CancellationToken cancellationToken);
 	}
 
 	public interface IRelation
 	{
 		string Relation { get; }
 		string SubjectType { get; }
-		string SubjectId { get; }
+		Guid SubjectId { get; }
 	}
 
 	public class Update
@@ -29,12 +29,12 @@ namespace Permissions
 		public class Relation
 		{
 			public string SubjectType { get; set; } = null!;
-			public string SubjectId { get; set; } = null!;
+			public Guid SubjectId { get; set; }
 			public string Name { get; set; } = null!;
 			public Operation Operation { get; set; }
 		}
 
-		public enum Operation { Upsert, Remove }
+		public enum Operation { Touch, Remove }
 	}
 
 	internal class PermissionsRepository : GrpcRepository, IPermissionsRepository
@@ -50,7 +50,7 @@ namespace Permissions
 
 
 
-		public async Task<bool> IsAllowed(string subjectType, string subjectId, string permission, string objectType, string objectId, string? writtenAtToken = default, CancellationToken cancellationToken = default)
+		public async Task<bool> IsAllowed(string subjectType, Guid subjectId, string permission, string objectType, Guid objectId, string? writtenAtToken = default, CancellationToken cancellationToken = default)
 		{
 			var hasPermissionResponse = await permissionsServiceClient.CheckPermissionAsync(
 				request: new CheckPermissionRequest
@@ -67,14 +67,14 @@ namespace Permissions
 						Object = new ObjectReference
 						{
 							ObjectType = subjectType,
-							ObjectId = subjectId
+							ObjectId = subjectId.ToString()
 						}
 					},
 					Permission = permission,
 					Resource = new ObjectReference
 					{
 						ObjectType = objectType,
-						ObjectId = objectId,
+						ObjectId = objectId.ToString(),
 					},
 				},
 				headers: AuthHeaders(),
@@ -84,7 +84,7 @@ namespace Permissions
 		}
 
 
-		public async Task<IReadOnlySet<string>> IsAllowedBulkExperimental(IEnumerable<(string subjectType, string subjectId, string permission, string objectType, string objectId)> items, string? writtenAtToken = default, CancellationToken cancellationToken = default)
+		public async Task<IReadOnlySet<Guid>> IsAllowedBulkExperimental(IEnumerable<(string subjectType, Guid subjectId, string permission, string objectType, Guid objectId)> items, string? writtenAtToken = default, CancellationToken cancellationToken = default)
 		{
 			var bulkPermissionResponse = await experimentalServiceClient.BulkCheckPermissionAsync(
 				request: new BulkCheckPermissionRequest
@@ -103,14 +103,14 @@ namespace Permissions
 								Object = new ObjectReference
 								{
 									ObjectType = i.subjectType,
-									ObjectId = i.subjectId
+									ObjectId = i.subjectId.ToString()
 								}
 							},
 							Permission = i.permission,
 							Resource = new ObjectReference
 							{
 								ObjectType = i.objectType,
-								ObjectId = i.objectId,
+								ObjectId = i.objectId.ToString(),
 							},
 						})
 					}
@@ -120,12 +120,12 @@ namespace Permissions
 
 			return bulkPermissionResponse.Pairs
 				.Where(p => p.Item.Permissionship == CheckPermissionResponse.Types.Permissionship.HasPermission)
-				.Select(p => p.Request.Resource.ObjectId)
+				.Select(p => Guid.Parse(p.Request.Resource.ObjectId))
 				.ToImmutableHashSet();
 		}
 
 
-		public IAsyncEnumerable<string> LookupResources(string subjectType, string subjectId, string permission, string objectType, string? writtenAtToken = default, CancellationToken cancellationToken = default)
+		public IAsyncEnumerable<Guid> LookupResources(string subjectType, Guid subjectId, string permission, string objectType, string? writtenAtToken = default, CancellationToken cancellationToken = default)
 		{
 			var serverStream = permissionsServiceClient.LookupResources(
 				request: new LookupResourcesRequest
@@ -144,7 +144,7 @@ namespace Permissions
 						Object = new ObjectReference
 						{
 							ObjectType = subjectType,
-							ObjectId = subjectId
+							ObjectId = subjectId.ToString()
 						}
 					},
 					OptionalLimit = 0,
@@ -155,13 +155,13 @@ namespace Permissions
 
 			var resources = serverStream.ResponseStream.ReadAllAsync(cancellationToken)
 				.Where(r => r.Permissionship == LookupPermissionship.HasPermission)
-				.Select(r => r.ResourceObjectId);
+				.Select(r => Guid.Parse(r.ResourceObjectId));
 
 			return resources;
 		}
 
 
-		public async Task<IReadOnlyCollection<IRelation>> GetRelations(string objectType, string objectId, string relationType = "", string? writtenAtToken = default, CancellationToken cancellationToken = default)
+		public async Task<IReadOnlyCollection<IRelation>> GetRelations(string objectType, Guid objectId, string relationType = "", string? writtenAtToken = default, CancellationToken cancellationToken = default)
 		{
 			var response = permissionsServiceClient.ReadRelationships(
 				request: new ReadRelationshipsRequest
@@ -176,7 +176,7 @@ namespace Permissions
 					RelationshipFilter = new RelationshipFilter
 					{
 						ResourceType = objectType,
-						OptionalResourceId = objectId,
+						OptionalResourceId = objectId.ToString(),
 						OptionalRelation = relationType,
 					}
 				},
@@ -186,9 +186,9 @@ namespace Permissions
 			var relationships = await response.ResponseStream.ReadAllAsync(cancellationToken)
 				.Select(r => new RelationDto
 				{
-					ObjectId = r.Relationship.Resource.ObjectId,
+					ObjectId = Guid.Parse(r.Relationship.Resource.ObjectId),
 					Relation = r.Relationship.Relation,
-					SubjectId = r.Relationship.Subject.Object.ObjectId,
+					SubjectId = Guid.Parse(r.Relationship.Subject.Object.ObjectId),
 					SubjectType = r.Relationship.Subject.Object.ObjectType,
 				})
 				.ToListAsync(cancellationToken);
@@ -197,20 +197,20 @@ namespace Permissions
 		}
 		class RelationDto : IRelation
 		{
-			public string ObjectId { get; set; } = null!;
+			public Guid ObjectId { get; set; }
 			public string Relation { get; set; } = null!;
-			public string SubjectId { get; set; } = null!;
+			public Guid SubjectId { get; set; }
 			public string SubjectType { get; set; } = null!;
 		}
 
 
-		public async Task<string> UpdateRelations(string objectType, string objectId, Update dto, CancellationToken cancellationToken)
+		public async Task<string> UpdateRelations(string objectType, Guid objectId, Update dto, CancellationToken cancellationToken)
 		{
 			var updatables = dto.RelationsToUpdate.Select(p => new RelationshipUpdate
 			{
 				Operation = p.Operation switch
 				{
-					Update.Operation.Upsert => RelationshipUpdate.Types.Operation.Touch,
+					Update.Operation.Touch => RelationshipUpdate.Types.Operation.Touch,
 					Update.Operation.Remove => RelationshipUpdate.Types.Operation.Delete,
 					_ => RelationshipUpdate.Types.Operation.Unspecified
 				},
@@ -221,14 +221,14 @@ namespace Permissions
 						Object = new ObjectReference
 						{
 							ObjectType = p.SubjectType,
-							ObjectId = p.SubjectId,
+							ObjectId = p.SubjectId.ToString(),
 						}
 					},
 					Relation = p.Name,
 					Resource = new ObjectReference
 					{
 						ObjectType = objectType,
-						ObjectId = objectId,
+						ObjectId = objectId.ToString(),
 					}
 				}
 			}).ToList();
@@ -245,7 +245,7 @@ namespace Permissions
 		}
 
 
-		public async Task Remove(string objectType, string objectId, CancellationToken cancellationToken)
+		public async Task Remove(string objectType, Guid objectId, CancellationToken cancellationToken)
 		{
 			await permissionsServiceClient.DeleteRelationshipsAsync(
 				new DeleteRelationshipsRequest
@@ -253,7 +253,7 @@ namespace Permissions
 					RelationshipFilter = new RelationshipFilter
 					{
 						ResourceType = objectType,
-						OptionalResourceId = objectId
+						OptionalResourceId = objectId.ToString()
 					}
 				},
 				headers: AuthHeaders(),

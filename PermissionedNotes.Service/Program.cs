@@ -17,7 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuth();
 builder.Services.AddPermissions(builder.Configuration);
-builder.Services.AddDbContext<NotesDbContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Notes")!).UseSnakeCaseNamingConvention());
+builder.Services.AddDbContext<DB>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Notes")!).UseSnakeCaseNamingConvention());
 
 
 
