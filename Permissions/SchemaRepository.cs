@@ -1,5 +1,5 @@
 ﻿using com.authzed.api.v1;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Permissions
 {
@@ -13,7 +13,7 @@ namespace Permissions
 	{
 		private readonly SchemaService.SchemaServiceClient schemaServiceClient;
 
-		public SchemaRepository(SchemaService.SchemaServiceClient schemaServiceClient, IConfiguration config) : base(config)
+		public SchemaRepository(SchemaService.SchemaServiceClient schemaServiceClient, IOptionsMonitor<PermissionsOptions> options) : base(options)
 		{
 			this.schemaServiceClient = schemaServiceClient;
 		}

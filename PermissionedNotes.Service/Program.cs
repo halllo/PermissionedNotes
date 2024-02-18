@@ -16,7 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuth();
-builder.Services.AddPermissions(builder.Configuration);
+builder.Services.Configure<PermissionsOptions>(builder.Configuration.GetSection("SpiceDB"));
+builder.Services.AddPermissions();
 builder.Services.AddDbContext<DB>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Notes")!).UseSnakeCaseNamingConvention());
 
 

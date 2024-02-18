@@ -1,32 +1,31 @@
 ﻿using com.authzed.api.v1;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Permissions
 {
 	public static class ServiceCollectionExtension
 	{
-		public static void AddPermissions(this IServiceCollection services, IConfiguration config)
+		public static void AddPermissions(this IServiceCollection services)
 		{
-			string? spiceDbEndpoint = config["SpiceDB:Endpoint"];
-			if (!string.IsNullOrWhiteSpace(spiceDbEndpoint))
+			services.AddGrpcClient<SchemaService.SchemaServiceClient>((p, o) =>
 			{
-				services.AddGrpcClient<SchemaService.SchemaServiceClient>(o =>
-				{
-					o.Address = new Uri(spiceDbEndpoint);
-				});
-				services.AddGrpcClient<PermissionsService.PermissionsServiceClient>(o =>
-				{
-					o.Address = new Uri(spiceDbEndpoint);
-				});
-				services.AddGrpcClient<ExperimentalService.ExperimentalServiceClient>(o =>
-				{
-					o.Address = new Uri(spiceDbEndpoint);
-				});
+				var options = p.GetRequiredService<IOptions<PermissionsOptions>>();
+				o.Address = new Uri(options.Value.Endpoint);
+			});
+			services.AddGrpcClient<PermissionsService.PermissionsServiceClient>((p, o) =>
+			{
+				var options = p.GetRequiredService<IOptions<PermissionsOptions>>();
+				o.Address = new Uri(options.Value.Endpoint);
+			});
+			services.AddGrpcClient<ExperimentalService.ExperimentalServiceClient>((p, o) =>
+			{
+				var options = p.GetRequiredService<IOptions<PermissionsOptions>>();
+				o.Address = new Uri(options.Value.Endpoint);
+			});
 
-				services.AddScoped<ISchemaRepository, SchemaRepository>();
-				services.AddScoped<IPermissionsRepository, PermissionsRepository>();
-			}
+			services.AddScoped<ISchemaRepository, SchemaRepository>();
+			services.AddScoped<IPermissionsRepository, PermissionsRepository>();
 		}
 	}
 }

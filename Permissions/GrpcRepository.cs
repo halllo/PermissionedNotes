@@ -1,17 +1,17 @@
 ﻿using Grpc.Core;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Permissions
 {
 	internal abstract class GrpcRepository
 	{
-		private readonly IConfiguration config;
+		private readonly IOptionsMonitor<PermissionsOptions> options;
 
-		public GrpcRepository(IConfiguration config)
+		public GrpcRepository(IOptionsMonitor<PermissionsOptions> options)
 		{
-			this.config = config;
+			this.options = options;
 		}
 
-		protected Metadata AuthHeaders() => new Metadata { { "Authorization", $"Bearer {this.config["SpiceDB:BearerAuthorization"]}" } };
+		protected Metadata AuthHeaders() => new Metadata { { "Authorization", $"Bearer {this.options.CurrentValue.BearerAuthorization}" } };
 	}
 }

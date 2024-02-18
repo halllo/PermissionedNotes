@@ -1,6 +1,6 @@
 ﻿using com.authzed.api.v1;
 using Grpc.Core;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Collections.Immutable;
 
 namespace Permissions
@@ -35,7 +35,7 @@ namespace Permissions
 			public Operation Operation { get; set; }
 		}
 
-		public enum Operation { Touch, Remove}
+		public enum Operation { Touch, Remove }
 	}
 
 	internal class PermissionsRepository : GrpcRepository, IPermissionsRepository
@@ -43,7 +43,7 @@ namespace Permissions
 		private readonly PermissionsService.PermissionsServiceClient permissionsServiceClient;
 		private readonly ExperimentalService.ExperimentalServiceClient experimentalServiceClient;
 
-		public PermissionsRepository(PermissionsService.PermissionsServiceClient permissionsServiceClient, ExperimentalService.ExperimentalServiceClient experimentalServiceClient, IConfiguration config) : base(config)
+		public PermissionsRepository(PermissionsService.PermissionsServiceClient permissionsServiceClient, ExperimentalService.ExperimentalServiceClient experimentalServiceClient, IOptionsMonitor<PermissionsOptions> options) : base(options)
 		{
 			this.permissionsServiceClient = permissionsServiceClient;
 			this.experimentalServiceClient = experimentalServiceClient;

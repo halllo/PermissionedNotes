@@ -17,7 +17,8 @@ var builder = Host.CreateDefaultBuilder(args)
 	})
 	.ConfigureServices((context, services) =>
 	{
-		services.AddPermissions(context.Configuration);
+		services.Configure<PermissionsOptions>(context.Configuration.GetSection("SpiceDB"));
+		services.AddPermissions();
 		services.AddDbContext<DB>(dbco => dbco
 			.UseNpgsql(context.Configuration.GetConnectionString("Notes")!, npgo => npgo.MigrationsAssembly(typeof(DB).Assembly.FullName))
 			.UseSnakeCaseNamingConvention());
