@@ -1,30 +1,30 @@
-definition organisation {
-}
-
-definition team {
-}
-
 definition user {
 }
 
-definition collection {	
-	relation owner: user
-	relation writer: user
-	relation reader: user
+definition team {
+	relation member: user
+}
 
-    permission read = owner + writer + reader
+definition collection {	
+	relation owner: user | team#member
+	relation writer: user | team#member
+	relation reader: user | team#member
+
+	permission read = owner + writer + reader
 	permission update = owner + writer
 	permission delete = owner
 	permission create_note = owner + writer
+	permission change_permissions = owner
 }
 
 definition note {
-	relation owner: user
-	relation writer: user
-	relation reader: user
+	relation owner: user | team#member
+	relation writer: user | team#member
+	relation reader: user | team#member
 	relation parent: collection
 
 	permission read = owner + writer + reader + parent->read
 	permission update = owner + writer + parent->update
 	permission delete = owner + parent->delete
+	permission change_permissions = owner
 }

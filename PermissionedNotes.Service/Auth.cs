@@ -34,6 +34,7 @@ namespace PermissionedNotes.Service
 					o.Scope.Add("profile");
 					o.Scope.Add("verification");
 					o.Scope.Add("notes");
+					o.Scope.Add("admin");
 					o.SaveTokens = true;
 					o.Events.OnRedirectToIdentityProvider = async ctx =>
 					{
@@ -75,6 +76,13 @@ namespace PermissionedNotes.Service
 				{
 					policy.AuthenticationSchemes = new[] { LoginCookie };
 					policy.RequireAuthenticatedUser();
+					//todo: scope checking
+				});
+				options.AddPolicy("admin", policy =>
+				{
+					policy.AuthenticationSchemes = new[] { LoginCookie };
+					policy.RequireAuthenticatedUser();
+					//todo: scope checking
 				});
 			});
 		}

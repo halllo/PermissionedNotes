@@ -83,22 +83,26 @@ namespace PermissionedNotes.Service
 			if (await this.permissions.IsAllowedToReadNote(User, id, cancellationToken) != true)
 				return Forbid();
 
-			var dto = await db.Notes.AsNoTracking().Include(n => n.Collection)
+			var note = await db.Notes.AsNoTracking().Include(n => n.Collection)
 				.Where(n => n.Id == id)
-				.Select(n => new
-				{
-					n.Id,
-					n.CreatedAt,
-					n.CreatedBy,
-					n.UpdatedAt,
-					n.UpdatedBy,
-					n.RowVersion,
-					collection = n.Collection != null ? new { n.Collection.Id, n.Collection.Name } : null,
-					n.Text,
-				})
 				.SingleOrDefaultAsync(cancellationToken);
 
-			return Ok(dto);
+			if (note == null) return NoContent();
+
+			var relations = await this.permissions.GetNoteRelations(id, cancellationToken);
+
+			return Ok(new
+			{
+				note.Id,
+				note.CreatedAt,
+				note.CreatedBy,
+				note.UpdatedAt,
+				note.UpdatedBy,
+				note.RowVersion,
+				note.Text,
+				collection = note.Collection != null ? new { note.Collection.Id, note.Collection.Name } : null,
+				relations,
+			});
 		}
 
 		[HttpPost]
@@ -107,10 +111,16 @@ namespace PermissionedNotes.Service
 			var userId = User.Id();
 			var noteId = Guid.NewGuid();
 
-			await this.permissions.UpdateRelations("note", noteId, new Update
-			{
-				RelationsToUpdate = [new Update.Relation { SubjectType = "user", SubjectId = userId, Name = "owner", Operation = Permissions.Update.Operation.Touch, }]
-			}, cancellationToken);
+			await this.permissions.UpdateNoteRelations(
+				noteId: noteId,
+				relations: [new Update.Relation
+				{
+					SubjectType = "user",
+					SubjectId = userId,
+					Name = "owner",
+					Operation = Permissions.Update.Operation.Touch,
+				}],
+				cancellationToken: cancellationToken);
 
 			db.Notes.Add(new Note
 			{
@@ -137,10 +147,16 @@ namespace PermissionedNotes.Service
 
 			var noteId = Guid.NewGuid();
 
-			await this.permissions.UpdateRelations("note", noteId, new Update
-			{
-				RelationsToUpdate = [new Update.Relation { SubjectType = "collection", SubjectId = collection.Id, Name = "parent", Operation = Permissions.Update.Operation.Touch }]
-			}, cancellationToken);
+			await this.permissions.UpdateNoteRelations(
+				noteId: noteId,
+				relations: [new Update.Relation
+				{
+					SubjectType = "collection",
+					SubjectId = collection.Id,
+					Name = "parent",
+					Operation = Permissions.Update.Operation.Touch
+				}],
+				cancellationToken: cancellationToken);
 
 			db.Notes.Add(new Note
 			{
@@ -174,6 +190,22 @@ namespace PermissionedNotes.Service
 			return Ok();
 		}
 		public record UpdateNoteRequest(string Text, long RowVersion);
+
+		[HttpPut]
+		[Route("{id}/permissions")]
+		public async Task<IActionResult> UpdatePermissions([FromRoute] Guid id, [FromBody] UpdateNotePermissionsRequest updateNote, CancellationToken cancellationToken)
+		{
+			if (await this.permissions.IsAllowedToUpdateNotePermissions(User, id, cancellationToken) != true)
+				return Forbid();
+
+			var note = await db.Notes.SingleOrDefaultAsync(n => n.Id == id, cancellationToken);
+			if (note == null) return NotFound();
+
+			await this.permissions.UpdateNoteRelations(id, updateNote.relations.ToArray(), cancellationToken);
+
+			return Accepted();
+		}
+		public record UpdateNotePermissionsRequest(List<Update.Relation> relations);
 
 		[HttpDelete]
 		[Route("{id}")]

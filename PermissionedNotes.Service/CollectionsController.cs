@@ -51,21 +51,25 @@ namespace PermissionedNotes.Service
 			if (await this.permissions.IsAllowedToReadCollection(User, id, cancellationToken) != true)
 				return Forbid();
 
-			var dto = await db.Collections.AsNoTracking()
+			var collection = await db.Collections.AsNoTracking()
 				.Where(c => c.Id == id)
-				.Select(c => new
-				{
-					c.Id,
-					c.Name,
-					c.CreatedAt,
-					c.CreatedBy,
-					c.UpdatedAt,
-					c.UpdatedBy,
-					c.RowVersion,
-				})
 				.SingleOrDefaultAsync(cancellationToken);
 
-			return Ok(dto);
+			if (collection == null) return NoContent();
+
+			var relations = await this.permissions.GetCollectionRelations(id, cancellationToken);
+
+			return Ok(new
+			{
+				collection.Id,
+				collection.Name,
+				collection.CreatedAt,
+				collection.CreatedBy,
+				collection.UpdatedAt,
+				collection.UpdatedBy,
+				collection.RowVersion,
+				relations,
+			});
 		}
 
 		[HttpPost]
@@ -74,10 +78,16 @@ namespace PermissionedNotes.Service
 			var userId = User.Id();
 			var collectionId = Guid.NewGuid();
 
-			await this.permissions.UpdateRelations("collection", collectionId, new Update
-			{
-				RelationsToUpdate = [new Update.Relation { SubjectType = "user", SubjectId = userId, Name = "owner", Operation = Permissions.Update.Operation.Touch, }]
-			}, cancellationToken);
+			await this.permissions.UpdateCollectionRelations(
+				collectionId: collectionId,
+				relations: [new Update.Relation
+				{
+					SubjectType = "user",
+					SubjectId = userId,
+					Name = "owner",
+					Operation = Permissions.Update.Operation.Touch,
+				}],
+				cancellationToken: cancellationToken);
 
 			db.Collections.Add(new Collection
 			{
@@ -111,6 +121,22 @@ namespace PermissionedNotes.Service
 			return Ok();
 		}
 		public record UpdateCollectionRequest(string Name, long RowVersion);
+
+		[HttpPut]
+		[Route("{id}/permissions")]
+		public async Task<IActionResult> UpdatePermissions([FromRoute] Guid id, [FromBody] UpdateCollectionPermissionsRequest updateCollection, CancellationToken cancellationToken)
+		{
+			if (await this.permissions.IsAllowedToUpdateCollectionPermissions(User, id, cancellationToken) != true)
+				return Forbid();
+
+			var collection = await db.Collections.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+			if (collection == null) return NotFound();
+
+			await this.permissions.UpdateCollectionRelations(id, updateCollection.relations.ToArray(), cancellationToken);
+
+			return Accepted();
+		}
+		public record UpdateCollectionPermissionsRequest(List<Update.Relation> relations);
 
 		[HttpDelete]
 		[Route("{id}")]

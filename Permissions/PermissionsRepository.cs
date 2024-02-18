@@ -30,11 +30,12 @@ namespace Permissions
 		{
 			public string SubjectType { get; set; } = null!;
 			public Guid SubjectId { get; set; }
+			public string? SubjectRelation { get; set; }
 			public string Name { get; set; } = null!;
 			public Operation Operation { get; set; }
 		}
 
-		public enum Operation { Touch, Remove }
+		public enum Operation { Touch, Remove}
 	}
 
 	internal class PermissionsRepository : GrpcRepository, IPermissionsRepository
@@ -222,7 +223,8 @@ namespace Permissions
 						{
 							ObjectType = p.SubjectType,
 							ObjectId = p.SubjectId.ToString(),
-						}
+						},
+						OptionalRelation = p.SubjectRelation ?? ""
 					},
 					Relation = p.Name,
 					Resource = new ObjectReference
