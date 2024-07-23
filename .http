@@ -1,3 +1,5 @@
+### Acquire access tokens for Bob and Alice.
+
 # @name loginBob
 POST https://localhost:5001/connect/token
 Content-Type: application/x-www-form-urlencoded
@@ -26,7 +28,14 @@ Content-Type: application/x-www-form-urlencoded
 
 @accesstoken = {{loginBob.response.body.access_token}}
 
-###
+
+
+
+
+
+
+
+### Inspect the collections and notes of the user.
 
 # @name collections
 GET https://localhost:7262/collections
@@ -40,6 +49,11 @@ Authorization: Bearer {{accesstoken}}
 
 ###
 
+GET https://localhost:7262/notes/{{notes.response.body.notes[0].id}}
+Authorization: Bearer {{accesstoken}}
+
+###
+
 GET https://localhost:7262/collections/{{collections.response.body.collections[0].id}}
 Authorization: Bearer {{accesstoken}}
 
@@ -48,12 +62,51 @@ Authorization: Bearer {{accesstoken}}
 GET https://localhost:7262/collections/{{collections.response.body.collections[0].id}}/notes
 Authorization: Bearer {{accesstoken}}
 
+
+
+
+
+
+
+
+
+
+### Creae a new collection, get its details, and delete it again.
+
+# @name newcollection
+POST https://localhost:7262/collections
+Authorization: Bearer {{accesstoken}}
+Content-Type: application/json
+
+{
+  "name": "my first collection"
+}
+
 ###
+
+GET https://localhost:7262/collections/{{newcollection.response.body.$}}
+Authorization: Bearer {{accesstoken}}
+
+###
+
+DELETE https://localhost:7262/collections/{{newcollection.response.body.$}}
+Authorization: Bearer {{accesstoken}}
+
+
+
+
+
+
+
+
+
+
+### Create a new note, get its details, share it, and delete it again.
 
 # @name newnote
 POST https://localhost:7262/collections/{{collections.response.body.collections[0].id}}/notes
 Authorization: Bearer {{accesstoken}}
-content-type: application/json
+Content-Type: application/json
 
 {
   "text": "my cool note"
@@ -63,13 +116,25 @@ content-type: application/json
 
 GET https://localhost:7262/notes/{{newnote.response.body.$}}
 Authorization: Bearer {{accesstoken}}
-content-type: application/json
 
+###
+
+PUT https://localhost:7262/notes/{{newnote.response.body.$}}/permissions
+Authorization: Bearer {{accesstoken}}
+Content-Type: application/json
+
+{
+  "relations": [
+    {
+      "subjectType": "user",
+      "subjectId": "00000000-0000-0000-0000-000000000001",
+      "name": "reader",
+      "operation": 0
+    }
+  ]
+}
 
 ###
 
 DELETE https://localhost:7262/notes/{{newnote.response.body.$}}
 Authorization: Bearer {{accesstoken}}
-content-type: application/json
-
-

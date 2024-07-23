@@ -54,8 +54,8 @@ namespace PermissionedNotes.Service
 		public static Task<bool> IsAllowedToUpdateNote(this IPermissionsRepository permissions, ClaimsPrincipal user, Guid noteId, CancellationToken cancellationToken)
 			=> permissions.IsAllowed("user", user.Id(), "update", "note", noteId, cancellationToken: cancellationToken);
 
-		public static Task<bool> IsAllowedToUpdateNotePermissions(this IPermissionsRepository permissions, ClaimsPrincipal user, Guid collectionId, CancellationToken cancellationToken)
-			=> permissions.IsAllowed("user", user.Id(), "change_permissions", "note", collectionId, cancellationToken: cancellationToken);
+		public static Task<bool> IsAllowedToUpdateNotePermissions(this IPermissionsRepository permissions, ClaimsPrincipal user, Guid noteId, CancellationToken cancellationToken)
+			=> permissions.IsAllowed("user", user.Id(), "change_permissions", "note", noteId, cancellationToken: cancellationToken);
 
 		public static Task<bool> IsAllowedToDeleteNote(this IPermissionsRepository permissions, ClaimsPrincipal user, Guid noteId, CancellationToken cancellationToken)
 			=> permissions.IsAllowed("user", user.Id(), "delete", "note", noteId, cancellationToken: cancellationToken);

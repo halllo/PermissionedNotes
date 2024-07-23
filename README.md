@@ -46,7 +46,7 @@ class Note{
     +ChangePermissions()
 }
 
-Collection "0..+1" o--> "*" Note
+Collection "0..1" o--> "*" Note
 Team "0..*" --> "*" User: Member
 
 Collection --> User: Owner

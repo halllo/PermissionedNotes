@@ -145,13 +145,20 @@ namespace PermissionedNotes.Service
 			if (await this.permissions.IsAllowedToDeleteCollection(User, id, cancellationToken) != true)
 				return Forbid();
 
-			var collection = await db.Collections.SingleOrDefaultAsync(n => n.Id == id, cancellationToken);
+			var collection = await this.db.Collections.Include(c => c.Notes).SingleOrDefaultAsync(n => n.Id == id, cancellationToken);
 			if (collection == null) return NotFound();
 
-			await this.permissions.RemoveCollection(id, cancellationToken);
+			// beware multiple transactions (spicedb & postgres)
+			foreach	(var note in collection.Notes)
+			{
+				await this.permissions.RemoveNote(note.Id, cancellationToken);
+				this.db.Notes.Remove(note);
+			}
 
-			db.Collections.Remove(collection);
-			await db.SaveChangesAsync(cancellationToken);
+			await this.permissions.RemoveCollection(id, cancellationToken);
+			this.db.Collections.Remove(collection);
+
+			await this.db.SaveChangesAsync(cancellationToken);
 
 			return NoContent();
 		}
