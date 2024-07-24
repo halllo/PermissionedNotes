@@ -63,6 +63,43 @@ Note --> Team: Reader
 Note --> Team: Writer
 ```
 
+## Architecture
+
+```mermaid
+C4Context
+Enterprise_Boundary(enterprise, "") {
+    Person(bob, "bob")
+    Person(alice, "alice")
+    
+    System_Boundary(platform, "Platform") {
+        Container(is, "IdentityServer")
+    }
+    System_Boundary(permissionednotes, "PermissionedNotes") {
+        Container(pns, "PermissionedNotes.Service")
+        Container(pni, "PermissionedNotes.Init")
+        SystemDb(spicedb, "SpiceDB")
+        SystemDb(postgres, "PostgreSQL")
+    }
+    Rel(bob, pns, "cookie / jwt")
+    UpdateRelStyle(bob, pns, $textColor="white", $lineColor="white")
+    Rel(bob, is, "authenticate")
+    Rel(alice, pns, "cookie / jwt")
+    UpdateRelStyle(alice, pns, $textColor="white", $lineColor="white")
+    Rel(alice, is, "authenticate")
+    Rel(pns, postgres, "data")
+    UpdateRelStyle(pns, postgres, $textColor="white", $lineColor="white")
+    Rel(pns, spicedb, "check permissions")
+    UpdateRelStyle(pns, spicedb, $textColor="white", $lineColor="white")
+    BiRel(pns, is, "trust")
+    Rel(pni, postgres, "apply schema")
+    Rel(pni, spicedb, "apply schema")
+    Rel(spicedb, postgres, "storage")
+    UpdateRelStyle(spicedb, postgres, $textColor="white", $lineColor="white")
+}
+
+UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```
+
 ## Development
 
 ### Prerequisites
