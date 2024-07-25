@@ -28,9 +28,9 @@ namespace PermissionedNotes.Service
 				})
 				.AddOpenIdConnect(ExternalLoginScheme, o =>
 				{
+					o.Authority = configuration["Login:Authority"];
 					o.ClientId = "permissionednotes.web";
 					o.ClientSecret = configuration["Login:ClientSecret"];
-					o.Authority = configuration["Login:Authority"];
 					o.ResponseType = OpenIdConnectResponseType.Code;
 					o.Scope.Add("openid");
 					o.Scope.Add("profile");
