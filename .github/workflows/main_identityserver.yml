@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      Csproj: "IdentityServer/IdentityServer.csproj
 
     steps:
       - uses: actions/checkout@v4
@@ -22,10 +24,10 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build $Csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish $Csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
