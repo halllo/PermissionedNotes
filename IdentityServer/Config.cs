@@ -44,6 +44,28 @@ public static class Config
 				"notes",
 				"admin"
 			}
+		},
+		new Client
+		{
+			ClientId = "bot1",
+			ClientSecrets = { new Secret("secret".Sha256()) },
+			AllowedGrantTypes = [..GrantTypes.Code],
+			RedirectUris = { 
+				"https://token.botframework.com",
+				"https://token.botframework.com/.auth/web/redirect",
+				"https://europe.token.botframework.com",
+				"https://europe.token.botframework.com/.auth/web/redirect"
+			},
+			PostLogoutRedirectUris = { },
+			AllowedScopes =
+			{
+				IdentityServerConstants.StandardScopes.OpenId,
+				IdentityServerConstants.StandardScopes.Profile,
+				"verification",
+				"notes",
+				"admin"
+			},
+			AllowOfflineAccess = true,
 		}
 	];
 }
