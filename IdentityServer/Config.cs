@@ -50,12 +50,7 @@ public static class Config
 			ClientId = "bot1",
 			ClientSecrets = { new Secret("secret".Sha256()) },
 			AllowedGrantTypes = [..GrantTypes.Code],
-			RedirectUris = { 
-				"https://token.botframework.com",
-				"https://token.botframework.com/.auth/web/redirect",
-				"https://europe.token.botframework.com",
-				"https://europe.token.botframework.com/.auth/web/redirect"
-			},
+			RedirectUris = { "https://europe.token.botframework.com/.auth/web/redirect"	},
 			PostLogoutRedirectUris = { },
 			AllowedScopes =
 			{
@@ -65,6 +60,7 @@ public static class Config
 				"notes",
 				"admin"
 			},
+			RequirePkce = false,
 			AllowOfflineAccess = true,
 		}
 	];
