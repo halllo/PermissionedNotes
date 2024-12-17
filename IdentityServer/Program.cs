@@ -11,10 +11,12 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseSerilog((ctx, lc) => lc
-        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
-        .Enrich.FromLogContext()
-        .ReadFrom.Configuration(ctx.Configuration));
+    builder.Host.UseSerilog(
+        configureLogger: (ctx, lc) => lc
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
+            .Enrich.FromLogContext()
+            .ReadFrom.Configuration(ctx.Configuration), 
+        writeToProviders: true/*to support AddAzureWebAppDiagnostics, until we find a good AzureWebAppDiagnostics sink*/);
 
     var app = builder
         .ConfigureServices()

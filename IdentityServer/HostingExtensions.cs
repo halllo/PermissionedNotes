@@ -6,7 +6,13 @@ internal static class HostingExtensions
 {
 	public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
 	{
-		builder.Services.AddRazorPages();
+        builder.Services.AddLogging(loggingBuilder =>
+        {
+			loggingBuilder.ClearProviders();
+            loggingBuilder.AddAzureWebAppDiagnostics();/*requires serilogs writeToProviders: true, until we find a good AzureWebAppDiagnostics sink*/
+        });
+
+        builder.Services.AddRazorPages();
 
 		builder.Services.AddIdentityServer()
 			.AddInMemoryIdentityResources(Config.IdentityResources)
