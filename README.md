@@ -110,11 +110,11 @@ Running required containers
 podman run --name postgres2 -e POSTGRES_PASSWORD=secretpassword -e POSTGRES_DB=permissionednotes -d -p 5433:5432 postgres
 
 podman run -d --rm -p 5051:80 --env PGADMIN_DEFAULT_EMAIL=admin@admin.com --env PGADMIN_DEFAULT_PASSWORD=root --name pgadmin2 dpage/pgadmin4
-#register postgres server by using host ip from podman machine `ip a` because rootless containers use slirp4netns by default: https://github.com/containers/podman/blob/main/docs/tutorials/basic_networking.md#slirp4netns
+#register postgres server by using host ip from podman machine (`ip a`) or `host.containers.internal` because rootless containers use slirp4netns by default: https://github.com/containers/podman/blob/main/docs/tutorials/basic_networking.md#slirp4netns
 
-podman run --name spice2 -p 50052:50051 --rm authzed/spicedb migrate head --datastore-engine=postgres --datastore-conn-uri="postgres://postgres:secretpassword@localhost:5433/permissionednotes?sslmode=disable"
+podman run --name spice2 -p 50052:50051 --rm authzed/spicedb migrate head --datastore-engine=postgres --datastore-conn-uri="postgres://postgres:secretpassword@host.containers.internal:5433/permissionednotes?sslmode=disable"
 
-podman run --name spice2 -d -p 50052:50051 authzed/spicedb serve --grpc-preshared-key "secretkey" --datastore-engine=postgres --datastore-conn-uri="postgres://postgres:secretpassword@localhost:5433/permissionednotes?sslmode=disable"
+podman run --name spice2 -d -p 50052:50051 authzed/spicedb serve --grpc-preshared-key "secretkey" --datastore-engine=postgres --datastore-conn-uri="postgres://postgres:secretpassword@host.containers.internal:5433/permissionednotes?sslmode=disable"
 #if container ports dont get freed: netstat -ltnp | grep -w ':<port>' && kill <pid>
 ```
 
