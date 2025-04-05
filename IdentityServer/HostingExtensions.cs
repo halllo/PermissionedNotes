@@ -21,6 +21,7 @@ internal static class HostingExtensions
 			.AddTestUsers(TestUsers.Users)
 			.AddScopeParser<ScopeFilteringScopeParser>()
 			.AddResourceOwnerValidator<ScopeFilteringResourceOwnerPasswordValidator>()
+			.AddProfileService<CustomProfileService>()
 			;
 
 		builder.Services.AddAuthentication();
