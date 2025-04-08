@@ -50,7 +50,7 @@ public static class Config
 			ClientId = "bot1",
 			ClientSecrets = { new Secret("secret".Sha256()) },
 			AllowedGrantTypes = [..GrantTypes.Code],
-			RedirectUris = { "https://europe.token.botframework.com/.auth/web/redirect"	},
+			RedirectUris = { "https://europe.token.botframework.com/.auth/web/redirect" },
 			PostLogoutRedirectUris = { },
 			AllowedScopes =
 			{
@@ -61,6 +61,30 @@ public static class Config
 				"admin"
 			},
 			RequirePkce = false,
+			AllowOfflineAccess = true,
+		},
+		new Client
+		{
+			ClientId = "mcp_server",
+			ClientSecrets = { new Secret("secret".Sha256()) },
+			AllowedGrantTypes = [..GrantTypes.Code],
+			RedirectUris =
+			{
+				"https://localhost:7148/signin-oidc",
+				"http://localhost:5209/signin-oidc",
+				"https://localhost:7296/signin-oidc",
+				"http://localhost:5253/signin-oidc"
+			},
+			PostLogoutRedirectUris = { },
+			AllowedScopes =
+			{
+				IdentityServerConstants.StandardScopes.OpenId,
+				IdentityServerConstants.StandardScopes.Profile,
+				"verification",
+				"notes",
+				"admin"
+			},
+			RequirePkce = true,
 			AllowOfflineAccess = true,
 		}
 	];
