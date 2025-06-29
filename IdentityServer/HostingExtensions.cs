@@ -1,3 +1,4 @@
+using Duende.IdentityServer.Configuration;
 using Serilog;
 
 namespace IdentityServer;
@@ -6,15 +7,13 @@ internal static class HostingExtensions
 {
 	public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
 	{
-        builder.Services.AddLogging(loggingBuilder =>
-        {
+		builder.Services.AddLogging(loggingBuilder =>
+		{
 			loggingBuilder.ClearProviders();
-            loggingBuilder.AddAzureWebAppDiagnostics();/*requires serilogs writeToProviders: true, until we find a good AzureWebAppDiagnostics sink*/
-        });
+			loggingBuilder.AddAzureWebAppDiagnostics();/*requires serilogs writeToProviders: true, until we find a good AzureWebAppDiagnostics sink*/
+		});
 
-        builder.Services.AddRazorPages();
-
-		builder.Services.AddIdentityServer()
+		builder.Services.AddIdentityServer(o => { })
 			.AddInMemoryIdentityResources(Config.IdentityResources)
 			.AddInMemoryApiScopes(Config.ApiScopes)
 			.AddInMemoryClients(Config.Clients)
@@ -22,13 +21,23 @@ internal static class HostingExtensions
 			.AddScopeParser<ScopeFilteringScopeParser>()
 			.AddResourceOwnerValidator<ScopeFilteringResourceOwnerPasswordValidator>()
 			.AddProfileService<CustomProfileService>()
+			.AddOAuthDiscoveryEndpoint()
+			.IngoreMissingScopesDuringAuthorize()
+			;
+
+		builder.Services.AddIdentityServerConfiguration(o => { })
+			.AddDynamicClientRegistration()
+			.AddInMemoryClientConfigurationStore()
 			;
 
 		builder.Services.AddAuthentication();
 		builder.Services.AddTransient<ScopeFilter>();
 
+		builder.Services.AddRazorPages();
+
 		return builder.Build();
 	}
+
 
 	public static WebApplication ConfigurePipeline(this WebApplication app)
 	{
@@ -43,9 +52,9 @@ internal static class HostingExtensions
 		app.UseRouting();
 
 		app.UseIdentityServer();
-
 		app.UseAuthorization();
 		app.MapRazorPages().RequireAuthorization();
+		app.MapDynamicClientRegistration().AllowAnonymous();//todo: require auth!
 
 		return app;
 	}

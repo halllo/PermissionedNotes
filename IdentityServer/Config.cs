@@ -27,7 +27,8 @@ public static class Config
 		new ApiScope(name: "admin", displayName: "Administration")
 	];
 
-	public static IEnumerable<Client> Clients =>
+	public static ICollection<Client> Clients => clients;
+	private static readonly List<Client> clients =
 	[
 		new Client
 		{
@@ -86,6 +87,10 @@ public static class Config
 			},
 			RequirePkce = true,
 			AllowOfflineAccess = true,
+			AllowedCorsOrigins = 
+			{
+				"http://localhost:6274", // MCP inspector
+			}
 		}
 	];
 }
