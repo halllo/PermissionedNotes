@@ -21,6 +21,15 @@ public static class Config
 		}
 	];
 
+	public static IEnumerable<ApiResource> ApiResources =>
+	[
+		new ApiResource()
+		{
+			Name = "http://localhost:5253/",//needs it with trailing slash, because of the way the MCP inspector works
+			Scopes = [ "notes", "admin" ]
+		}
+	];
+
 	public static IEnumerable<ApiScope> ApiScopes =>
 	[
 		new ApiScope(name: "notes", displayName: "Notes"),
@@ -87,7 +96,7 @@ public static class Config
 			},
 			RequirePkce = true,
 			AllowOfflineAccess = true,
-			AllowedCorsOrigins = 
+			AllowedCorsOrigins =
 			{
 				"http://localhost:6274", // MCP inspector
 			}

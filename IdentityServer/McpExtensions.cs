@@ -39,17 +39,32 @@ namespace IdentityServer
 			return builder;
 		}
 
-		public static IIdentityServerBuilder IngoreMissingScopesDuringAuthorize(this IIdentityServerBuilder builder)
+		public static IIdentityServerBuilder ReplaceEmptyScopesWithResourceScopes(this IIdentityServerBuilder builder)
 		{
 			builder.Services.AddTransientDecorator<IAuthorizeRequestValidator, CustomAuthorizeRequestValidator>();
 			return builder;
 		}
 
 		private class CustomClientRegistrationProcessor(
-			IdentityServerConfigurationOptions options,
+			IdentityServerConfigurationOptions options, 
 			IClientConfigurationStore dcrStore,
+			IResourceStore store,
 			IClientStore clientStore) : DynamicClientRegistrationRequestProcessor(options, dcrStore)
 		{
+			public override async Task<IDynamicClientRegistrationResponse> ProcessAsync(DynamicClientRegistrationContext context)
+			{
+				if (!context.Client.AllowedScopes.Any())
+				{
+					var resources = await store.GetAllEnabledResourcesAsync();//todo: only get resources available to current user
+					foreach (var scope in resources.ApiResources.SelectMany(api => api.Scopes).Distinct())
+					{
+						context.Client.AllowedScopes.Add(scope);
+					}
+				}
+
+				var processed = await base.ProcessAsync(context);
+				return processed;
+			}
 
 			protected override async Task<IStepResult> AddClientId(DynamicClientRegistrationContext context)
 			{
@@ -118,20 +133,25 @@ namespace IdentityServer
 		private class CustomAuthorizeRequestValidator : IAuthorizeRequestValidator
 		{
 			private readonly IAuthorizeRequestValidator inner;
+			private readonly IResourceStore store;
 
-			public CustomAuthorizeRequestValidator(Decorator<IAuthorizeRequestValidator> inner)
+			public CustomAuthorizeRequestValidator(Decorator<IAuthorizeRequestValidator> inner, IResourceStore store)
 			{
 				this.inner = inner.Instance;
+				this.store = store;
 			}
 
-			public Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal? subject = null, AuthorizeRequestType authorizeRequestType = AuthorizeRequestType.Authorize)
+			public async Task<AuthorizeRequestValidationResult> ValidateAsync(NameValueCollection parameters, ClaimsPrincipal? subject = null, AuthorizeRequestType authorizeRequestType = AuthorizeRequestType.Authorize)
 			{
-				if (parameters.Get("scope") == null)
+				if (parameters.Get("scope") == null && parameters.Get("resource") != null)
 				{
-					parameters.Add("scope", "openid");
+					var resource = parameters.Get("resource");
+					var apiResources = await this.store.FindEnabledApiResourcesByNameAsync([resource ?? string.Empty]);
+					parameters.Add("scope", string.Join(' ', apiResources.SelectMany(api => api.Scopes).Distinct()));
 				}
 
-				return inner.ValidateAsync(parameters, subject, authorizeRequestType);
+				var validated = await inner.ValidateAsync(parameters, subject, authorizeRequestType);
+				return validated;
 			}
 		}
 	}

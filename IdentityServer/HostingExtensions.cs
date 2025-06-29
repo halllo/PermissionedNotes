@@ -15,6 +15,7 @@ internal static class HostingExtensions
 
 		builder.Services.AddIdentityServer(o => { })
 			.AddInMemoryIdentityResources(Config.IdentityResources)
+			.AddInMemoryApiResources(Config.ApiResources)
 			.AddInMemoryApiScopes(Config.ApiScopes)
 			.AddInMemoryClients(Config.Clients)
 			.AddTestUsers(TestUsers.Users)
@@ -22,7 +23,7 @@ internal static class HostingExtensions
 			.AddResourceOwnerValidator<ScopeFilteringResourceOwnerPasswordValidator>()
 			.AddProfileService<CustomProfileService>()
 			.AddOAuthDiscoveryEndpoint()
-			.IngoreMissingScopesDuringAuthorize()
+			.ReplaceEmptyScopesWithResourceScopes()
 			;
 
 		builder.Services.AddIdentityServerConfiguration(o => { })
@@ -54,7 +55,7 @@ internal static class HostingExtensions
 		app.UseIdentityServer();
 		app.UseAuthorization();
 		app.MapRazorPages().RequireAuthorization();
-		app.MapDynamicClientRegistration().AllowAnonymous();//todo: require auth!
+		app.MapDynamicClientRegistration().AllowAnonymous();//todo: require auth, but MCP inspector currently does not follow redirects for dcr :(
 
 		return app;
 	}

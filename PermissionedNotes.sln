@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Permissions", "Permissions\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "IdentityServer\IdentityServer.csproj", "{ADD16ED4-64CB-4D25-8405-582F27989988}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duende.IdentityServer", "..\DuendeSoftware_products\identity-server\src\IdentityServer\Duende.IdentityServer.csproj", "{51EA940D-8A45-54C0-D1FC-9CA69AFEFF2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duende.IdentityServer.Configuration", "..\DuendeSoftware_products\identity-server\src\Configuration\Duende.IdentityServer.Configuration.csproj", "{00A4C51F-83E1-1EDC-FDE0-221DC819BCE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{ADD16ED4-64CB-4D25-8405-582F27989988}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADD16ED4-64CB-4D25-8405-582F27989988}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD16ED4-64CB-4D25-8405-582F27989988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51EA940D-8A45-54C0-D1FC-9CA69AFEFF2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51EA940D-8A45-54C0-D1FC-9CA69AFEFF2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51EA940D-8A45-54C0-D1FC-9CA69AFEFF2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51EA940D-8A45-54C0-D1FC-9CA69AFEFF2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00A4C51F-83E1-1EDC-FDE0-221DC819BCE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00A4C51F-83E1-1EDC-FDE0-221DC819BCE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00A4C51F-83E1-1EDC-FDE0-221DC819BCE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00A4C51F-83E1-1EDC-FDE0-221DC819BCE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
