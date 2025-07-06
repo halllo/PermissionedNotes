@@ -25,7 +25,7 @@ public static class Config
 	[
 		new ApiResource()
 		{
-			Name = "http://localhost:5253/",//needs it with trailing slash, because of the way the MCP inspector works
+			Name = "http://localhost:5253/sse",
 			Scopes = [ "notes", "admin" ]
 		}
 	];
