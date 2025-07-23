@@ -25,7 +25,7 @@ public static class Config
 	[
 		new ApiResource()
 		{
-			Name = "http://localhost:5253/sse",
+			Name = "http://localhost:5253/",
 			Scopes = [ "notes", "admin" ]
 		}
 	];
