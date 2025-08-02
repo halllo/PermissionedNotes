@@ -83,7 +83,9 @@ public static class Config
 				"https://localhost:7148/signin-oidc",
 				"http://localhost:5209/signin-oidc",
 				"https://localhost:7296/signin-oidc",
-				"http://localhost:5253/signin-oidc"
+				"http://localhost:5253/signin-oidc",
+				"https://localhost:7208/signin-oidc",
+				"https://localhost:7054/signin-oidc"
 			},
 			PostLogoutRedirectUris = { },
 			AllowedScopes =
