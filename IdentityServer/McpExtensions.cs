@@ -91,6 +91,20 @@ namespace IdentityServer
 				return await base.AddClientId(context);
 			}
 
+			protected override async Task<IStepResult> AddClientSecret(DynamicClientRegistrationContext context)
+			{
+				if ((context.Request.Extensions.TryGetValue("client_secret", out var client_secret) ? client_secret : null) == null
+					&& context.Request.RequireClientSecret != true)
+				{
+					context.Client.RequireClientSecret = false;
+					return new SuccessfulStep();
+				}
+				else
+				{
+					return await base.AddClientSecret(context);
+				}
+			}
+
 			protected override async Task<(Secret, string)> GenerateSecret(DynamicClientRegistrationContext context)
 			{
 				if (context.Request.Extensions.TryGetValue("client_secret", out var secretParam))

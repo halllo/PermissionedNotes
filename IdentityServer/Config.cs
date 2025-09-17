@@ -98,9 +98,31 @@ public static class Config
 			},
 			RequirePkce = true,
 			AllowOfflineAccess = true,
+		},
+		new Client
+		{
+			ClientId = "mcp_inspector",
+			AllowedGrantTypes = [..GrantTypes.Code],
+			RedirectUris =
+			{
+				"http://localhost:6274/oauth/callback",
+				"http://localhost:6274/oauth/callback/debug"
+			},
+			PostLogoutRedirectUris = { },
+			AllowedScopes =
+			{
+				IdentityServerConstants.StandardScopes.OpenId,
+				IdentityServerConstants.StandardScopes.Profile,
+				"verification",
+				"notes",
+				"admin"
+			},
+			RequireClientSecret = false,
+			RequirePkce = true,
+			AllowOfflineAccess = true,
 			AllowedCorsOrigins =
 			{
-				"http://localhost:6274", // MCP inspector
+				"http://localhost:6274"
 			}
 		}
 	];
