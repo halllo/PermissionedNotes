@@ -25,7 +25,13 @@ public static class Config
 	[
 		new ApiResource()
 		{
-			Name = "http://localhost:5253/",
+			/* 
+			* RFC 3986 (URI Generic Syntax): Trailing Slash Rules
+			 *- For directories/collections: Include trailing slash (/api/users/)
+			 *- For specific resources: No trailing slash (/api/users/123)
+			 *- For base URIs without path: Include trailing slash (https://example.com/)
+			 */
+			Name = "http://localhost:5253/bot",
 			Scopes = [ "notes", "admin" ]
 		}
 	];
@@ -124,6 +130,27 @@ public static class Config
 			{
 				"http://localhost:6274"
 			}
+		},
+		new Client
+		{
+			ClientId = "mcp_console",
+			AllowedGrantTypes = [..GrantTypes.Code],
+			RedirectUris =
+			{
+				"http://localhost:1179/callback"
+			},
+			PostLogoutRedirectUris = { },
+			AllowedScopes =
+			{
+				IdentityServerConstants.StandardScopes.OpenId,
+				IdentityServerConstants.StandardScopes.Profile,
+				"verification",
+				"notes",
+				"admin"
+			},
+			RequireClientSecret = false,
+			RequirePkce = true,
+			AllowOfflineAccess = true
 		}
 	];
 }
