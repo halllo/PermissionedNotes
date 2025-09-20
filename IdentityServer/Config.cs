@@ -23,15 +23,20 @@ public static class Config
 
 	public static IEnumerable<ApiResource> ApiResources =>
 	[
+		/* 
+		 * RFC 3986 (URI Generic Syntax): Trailing Slash Rules
+		 *- For directories/collections: Include trailing slash (/api/users/)
+		 *- For specific resources: No trailing slash (/api/users/123)
+		 *- For base URIs without path: Include trailing slash (https://example.com/)
+		 */
 		new ApiResource()
 		{
-			/* 
-			* RFC 3986 (URI Generic Syntax): Trailing Slash Rules
-			 *- For directories/collections: Include trailing slash (/api/users/)
-			 *- For specific resources: No trailing slash (/api/users/123)
-			 *- For base URIs without path: Include trailing slash (https://example.com/)
-			 */
 			Name = "http://localhost:5253/bot",
+			Scopes = [ "notes", "admin" ]
+		},
+		new ApiResource()
+		{
+			Name = "https://localhost:7296/bot",
 			Scopes = [ "notes", "admin" ]
 		}
 	];
@@ -133,11 +138,11 @@ public static class Config
 		},
 		new Client
 		{
-			ClientId = "mcp_console",
+			ClientId = "mcp-remote",
 			AllowedGrantTypes = [..GrantTypes.Code],
 			RedirectUris =
 			{
-				"http://localhost:1179/callback"
+				"http://localhost:63113/oauth/callback"
 			},
 			PostLogoutRedirectUris = { },
 			AllowedScopes =
