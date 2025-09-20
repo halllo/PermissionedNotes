@@ -138,6 +138,27 @@ public static class Config
 		},
 		new Client
 		{
+			ClientId = "mcp_console",
+			AllowedGrantTypes = [..GrantTypes.Code],
+			RedirectUris =
+			{
+				"http://localhost:1179/callback"
+			},
+			PostLogoutRedirectUris = { },
+			AllowedScopes =
+			{
+				IdentityServerConstants.StandardScopes.OpenId,
+				IdentityServerConstants.StandardScopes.Profile,
+				"verification",
+				"notes",
+				"admin"
+			},
+			RequireClientSecret = false,
+			RequirePkce = true,
+			AllowOfflineAccess = true
+		},
+		new Client
+		{
 			ClientId = "mcp-remote",
 			AllowedGrantTypes = [..GrantTypes.Code],
 			RedirectUris =
